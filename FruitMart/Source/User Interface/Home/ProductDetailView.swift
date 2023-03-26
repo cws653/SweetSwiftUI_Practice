@@ -10,6 +10,9 @@ import SwiftUI
 
 struct ProductDetailView: View {
     let product: Product // 상품 정보를 전달받기 위한 프로퍼티 선언
+    @State private var quantity: Int = 1
+    @State private var showingAlert: Bool = false
+    @EnvironmentObject private var store: Store
     
     var body: some View {
         VStack(spacing: 0) {
@@ -17,6 +20,9 @@ struct ProductDetailView: View {
             orderView // 상품 정보를 출력하고 그 상품을 주문하기 위한 뷰
         }
         .edgesIgnoringSafeArea(.top)
+        .alert(isPresented: $showingAlert) {
+            confirmAlert // alert 수식어 추가
+        }
     }
     
     var productImage: some View {
@@ -53,10 +59,7 @@ struct ProductDetailView: View {
                 
                 Spacer()
                 
-                Image(systemName: "heart")
-                    .imageScale(.large)
-                    .foregroundColor(Color.peach)
-                    .frame(width: 32, height: 32)
+                FavoriteButton(product: product)
             }
             
             Text(splitText(product.description))
@@ -66,27 +69,47 @@ struct ProductDetailView: View {
     }
     
     var priceInfo: some View {
-      HStack {
-        (Text("₩")
-          + Text("\(product.price)").font(.title)
-          ).fontWeight(.medium)
-        Spacer()
-      }
-      .foregroundColor(.black)
+        let price = quantity * product.price // 수량 * 상품 가격
+        return HStack {
+            (Text("₩")
+             + Text("\(price)").font(.title)
+            ).fontWeight(.medium)
+            Spacer()
+            QuantitySelector(quantity: $quantity)
+        }
+        .foregroundColor(.black)
     }
-        
+    
     // 배경을 다크 모드에서도 항상 흰색이 되게 지정해 텍스트도 항상 검은색이 되게 지정
     
     var placeOrderButton: some View {
-        Button(action: {}) {
+        Button(action: {
+            self.showingAlert = true // 주문하기 버튼을 눌렀을 떄 알림창 출력
+        }) {
             Capsule()
                 .fill(Color.peach)
                 .frame(maxWidth: .infinity, minHeight: 30, maxHeight: 55)
                 .overlay(Text("주문하기"))
-                    .font(.system(size: 20)).fontWeight(.medium)
-                    .foregroundColor(Color.white)
+                .font(.system(size: 20)).fontWeight(.medium)
+                .foregroundColor(Color.white)
                 .padding(.vertical, 8)
         }
+    }
+    
+    var confirmAlert: Alert {
+        Alert(title: Text("주문 확인"),
+              message: Text("\(product.name)을(를) \(quantity)개 구매하겠습니까?"),
+              primaryButton: .default(Text("확인"), action: {
+            self.placeOrder() // 확인 버튼을 눌렀을 떄 동작하도록 구현
+        }),
+              secondaryButton: .cancel(Text("취소"))
+        )
+    }
+    
+    // 상품과 수량 정보를 placeOrder 메서드에 인수로 전달
+    func placeOrder() {
+        store.placeOrder(product: product, quantity: quantity)
+        
     }
     
     

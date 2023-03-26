@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct Home: View {
-    let store: Store
+    @EnvironmentObject private var store: Store
     
     var body: some View {
         NavigationView {
@@ -19,12 +19,13 @@ struct Home: View {
                 }
             }
             .navigationBarTitle("과일마트")
+            .buttonStyle(PlainButtonStyle())
         }
     }
 }
 
-struct Home_Previews: PreviewProvider {
-    static var previews: some View {
-        Home(store: Store())
-    }
-}
+//struct Home_Previews: PreviewProvider {
+//    static var previews: some View {
+//        Preview(source: Home(store: Store()))
+//    }
+//}

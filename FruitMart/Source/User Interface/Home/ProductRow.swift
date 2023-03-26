@@ -24,12 +24,6 @@ struct ProductRow: View {
     }
 }
 
-struct ProductRow_Previews: PreviewProvider {
-    static var previews: some View {
-        ProductRow(product: productSamples[0])
-    }
-}
-
 private extension ProductRow {
     var productImage: some View {
         Image(product.imageName)
@@ -64,14 +58,25 @@ private extension ProductRow {
             
             Spacer()
             
-            Image(systemName: "heart")
-                .imageScale(.large)
-                .foregroundColor(Color.peach)
-                .frame(width: 32, height: 32)
+            FavoriteButton(product: product)
             
             Image(systemName: "cart")
                 .foregroundColor(Color.peach)
                 .frame(width: 32, height: 32)
         }
+    }
+}
+
+struct ProductRow_Previews: PreviewProvider {
+    static var previews: some View {
+        Group {
+            ForEach(productSamples) {
+                ProductRow(product: $0)
+            }
+            ProductRow(product: productSamples[0])
+                .preferredColorScheme(.dark)
+        }
+        .padding()
+        .previewLayout(.sizeThatFits)
     }
 }
